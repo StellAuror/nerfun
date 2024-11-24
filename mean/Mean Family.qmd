@@ -1,0 +1,64 @@
+```{r}
+source(file.path(getActiveProject(), "run.R"))
+```
+
+## Tukey
+
+Trying the *robust* linear model
+
+```{r}
+# Dopasowanie odpornego modelu liniowego dla każdej grupy Species
+robust_models <- iris %>%
+  group_by(Species) %>%
+  summarise(
+    model = list(rlm(Sepal.Width ~ Sepal.Length, data = cur_data())),
+    .groups = "drop"
+  )
+
+# Pobranie współczynników dla każdej grupy
+coefficients <- robust_models %>%
+  mutate(coef = lapply(model, coef)) %>%
+  unnest_wider(coef, names_sep = "_") %>%
+  rename(intercept = `coef_(Intercept)`, slope = `coef_Sepal.Length`)
+
+# Wizualizacja danych z liniami regresji odpornych dla każdej grupy
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
+  geom_point(alpha = 0.7) +  # Punkty danych
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_abline(data = coefficients, 
+              aes(intercept = intercept, slope = slope, color = Species), 
+              show.legend = FALSE) +  # Linie regresji odpornej
+  labs(title = "Robust Linear Model on Iris Data by Species",
+       x = "Sepal Length (cm)",
+       y = "Sepal Width (cm)") +
+  theme_minimal()
+
+```
+
+```{r, warning=FALSE}
+# Predict
+ldfRQ <- datasets::airquality |> f.split_data(.5, 1)
+
+model <- lm(Ozone ~ Solar.R + Wind + Temp + Month, data = ldfRQ$Learn)
+ldfRQ$Test$Prediciton <- predict(model, ldfRQ$Test)
+
+ldfRQ$Test |> 
+  ggplot(aes(
+    y = Prediciton,
+    x = Ozone,
+  )) + 
+  geom_segment(aes(yend = Ozone)) +
+  geom_point(size = 3) +
+  geom_abline(slope = 1) +
+  scale_x_continuous(limits = c(0, 125)) + 
+  scale_y_continuous(limits = c(0, 125)) +
+  theme_minimal() +
+  annotate(
+    "label",
+    y = 100,
+    x = 0,
+    label = f.pred_txtstats(actual, predicted, c = 10),
+    hjust = 0
+  ) 
+```
+

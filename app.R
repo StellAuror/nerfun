@@ -1,11 +1,22 @@
-```{r}
 library(shiny)
 library(dplyr)
 library(ggplot2)
 library(plotly)
 library(MASS) 
+library(shinydashboard)
+
+folders <- list.files()[-(list.files() |> grep("\\.", "", x = _))]
+lapply(folders, function(folder) {
+  scripts <- list.files(path = folder)[list.files(path = folder) |>
+              sub("^.*?\\.", "", x = _) |> 
+              tolower() == "r"]
+  lapply(paste(folder, scripts, sep = "/"), function(script) {
+    source(script)
+  })
+}) |> invisible()
 
 
+list.files(path = "Outliers-Mean")
 
 
 ui <- fluidPage(
@@ -172,7 +183,4 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 
 
-
-
-```
 
