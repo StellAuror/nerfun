@@ -1,7 +1,9 @@
 ### Load primary packages
 pacman::p_load(
   tidyverse,
-  rstudioapi
+  rstudioapi,
+  viridis,
+  gghalves
 )
 
 ### Loading Local Scripts

@@ -1,5 +1,5 @@
 ```{r}
-source(file.path(getActiveProject(), "run.R"))
+source(file.path(rstudioapi::getActiveProject(), "run.R"))
 ```
 
 ## Tukey
@@ -40,11 +40,11 @@ ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
 ldfRQ <- datasets::airquality |> f.split_data(.5, 1)
 
 model <- lm(Ozone ~ Solar.R + Wind + Temp + Month, data = ldfRQ$Learn)
-ldfRQ$Test$Prediciton <- predict(model, ldfRQ$Test)
+ldfRQ$Test$Prediction <- predict(model, ldfRQ$Test)
 
 ldfRQ$Test |> 
   ggplot(aes(
-    y = Prediciton,
+    y = Prediction,
     x = Ozone,
   )) + 
   geom_segment(aes(yend = Ozone)) +
@@ -57,8 +57,65 @@ ldfRQ$Test |>
     "label",
     y = 100,
     x = 0,
-    label = f.pred_txtstats(actual, predicted, c = 10),
+    label = f.pred_txtstats(ldfRQ$Test$Ozone, ldfRQ$Test$Prediction, c = 10),
     hjust = 0
   ) 
+
+
+ldfRQ$Test |> 
+  ggplot(aes(
+    y = Prediction - Ozone,
+    x = Prediction,
+  )) + 
+  geom_segment(aes(yend = 0)) +
+  geom_point(size = 3) +
+  geom_hline(yintercept = 0) +
+  theme_minimal() +
+  annotate(
+    "label",
+    y = 10,
+    x = -50,
+    label = f.pred_txtstats(ldfRQ$Test$Ozone, ldfRQ$Test$Prediction, c = 10),
+    hjust = 0
+  ) 
+```
+
+```{r, warning=FALSE}
+library(tidyverse)
+library(gghalves) # Do rysowania połówek wykresów
+library(viridis)  # Do skali kolorów viridis
+
+ldfRQ$Test |>
+  select(Ozone, Prediction) |>
+  pivot_longer(names_to = "Type", values_to = "Value", cols = 1:2) |>
+  ggplot(aes(
+    y = Value,
+    x = Type,
+    color = Type,
+    fill = Type
+  )) +
+  geom_half_boxplot(
+    side = "l", # Po lewej stronie
+    alpha = 0.5,
+    outlier.shape = NA
+  ) +
+  geom_half_violin(
+    side = "r", # Po prawej stronie
+    alpha = 0.5,
+    trim = TRUE
+  ) +
+  geom_half_point(
+    side = "r", # Punkty tylko na prawej stronie
+    alpha = 0.8,
+    position = position_jitter(width = 0.1), # Lekko przesunięte w poziomie
+    size = 2, # Dostosowanie rozmiaru punktów
+    color = "black" # Ciemniejsze punkty
+  ) +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d() +
+  theme_minimal() +
+  theme(legend.position = "none") 
+
+
 ```
 
