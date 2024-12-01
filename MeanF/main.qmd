@@ -77,3 +77,57 @@ ldfRQ$Test |>
   theme_minimal() +
   theme(legend.position = "none") 
 ```
+
+## Tukey
+
+### Influence (Weight) 
+```{r}
+threshold = 60
+
+ldfRQ$Test |>
+  ggplot(aes(
+    y =  f.calc_tukey_weight(Prediction, 90),
+    x = Prediction
+  )) +
+    geom_point() + 
+    theme_minimal()
+```
+
+### Loss
+Values are intentionally high, that's the result of how the function is defined
+```{r}
+
+
+ldfRQ$Test |>
+  ggplot(aes(
+    y =  f.calc_tukey_loss(Prediction, threshold),
+    x = Prediction
+  )) +
+    
+    geom_point() + 
+    geom_hline(yintercept = (threshold^2 / 6), linetype = "dashed", color = "red") +
+    theme_minimal()
+```
+
+```{r}
+ggplot(ldfRQ$Test, aes(x = Prediction - Ozone)) +
+   geom_histogram() +
+   geom_vline(xintercept = 0)
+
+
+
+```
+
+## Huber 
+
+```{r}
+ldfRQ$Test |>
+  ggplot(aes(
+    y =  f.calc_huber(Prediction, 90),
+    x = Prediction
+  )) +
+    geom_point() + 
+    theme_minimal()
+```
+
+## Influence
