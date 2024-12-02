@@ -1,18 +1,5 @@
-source("run.R")
-
-# Predict
-ldfRQ <- datasets::airquality |> f.split_data(.5, 1)
-
-model <- lm(Ozone ~ Solar.R + Wind + Temp + Month, data = ldfRQ$Learn)
-ldfRQ$Test$Prediction <- predict(model, ldfRQ$Test)
-
-
-pacman::p_load(
-  shiny,
-  bslib,
-  htmlwidgets,
-  shinyWidgets
-)
+ library(shiny)
+ source("run.R", local = TRUE)
 
 ui <- page_navbar(
   title = tags$span(

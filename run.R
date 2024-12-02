@@ -1,34 +1,26 @@
-### Load primary packages
+print("run.R Initiated")
+ 
+ ### Load primary packages
 pacman::p_load(
+  shiny,
+  bslib,
+  htmlwidgets,
+  shinyWidgets,
   tidyverse,
   rstudioapi,
   viridis,
-  gghalves
+  gghalves,
+  plotly
 )
 
 ### Loading Local Scripts
 
-# Function to get the script's path
-f.script.path <- function() {
-  cmdArgs <- commandArgs(trailingOnly = FALSE)
-  file_arg <- "--file="
-  match <- grep(file_arg, cmdArgs)
-  if (length(match) > 0) {
-    # Script is run with Rscript
-    return(normalizePath(sub(file_arg, "", cmdArgs[match])))
-  } else if (!is.null(sys.frames()[[1]]$ofile)) {
-    # Script is sourced via R console
-    return(normalizePath(sys.frames()[[1]]$ofile))
-  } else {
-    # RStudio or interactive environment
-    return(normalizePath(rstudioapi::getActiveDocumentContext()$path))
-  }
-}
-
+ ####### DEVELOP A UNICERSAL WAY TO GET THE PATH
+ 
 # Loading .R scripts (local makes var declarations temporary)
 local({
   # Directory of the current script
-  dp <- dirname(f.script.path())
+  dp <- dirname("B:\\Coding\\Nerfun\\run.R")
   
   # Find subdirectories
   folders <- list.dirs(path = dp, full.names = TRUE, recursive = FALSE)
@@ -50,3 +42,11 @@ local({
     }
   }
 })
+
+
+ 
+  # Predict
+  ldfRQ <- datasets::airquality |> f.split_data(.4, 1)
+
+  model <- lm(Ozone ~ Solar.R + Wind + Temp, data = ldfRQ$Learn)
+  ldfRQ$Test$Prediction <- predict(model, ldfRQ$Test)
